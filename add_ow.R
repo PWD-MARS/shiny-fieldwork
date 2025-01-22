@@ -1053,7 +1053,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
         rv$end_date_warning()
       )
 
-      observe({toggleState(id = "add_well_meas", condition = nchar(rv$end_date_warning()) == 0)})
+      #observe({toggleState(id = "add_well_meas", condition = nchar(rv$end_date_warning()) == 0)})
       
       
       rv$refresh_deploy_meas <- 0 
