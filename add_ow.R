@@ -178,7 +178,7 @@ add_owUI <- function(id, label = "add_ow", site_names, html_req, future_req){
                                   checkboxInput(ns("new_measurement"), "Create New Measurement?")),
                  textInput(ns("well_meas_notes"), "Notes", value = NULL),
                  textOutput(ns("add_meas_warning")),
-                 actionButton(ns("add_well_meas"), "Add Well Measurements"),
+                 disabled(actionButton(ns("add_well_meas"), "Add Well Measurements")),
                  actionButton(ns("add_ow_deploy"), "Deploy Sensor at this SMP"),
                  actionButton(ns("clear_ow"), "Clear All Fields"),
                  ##notes about requirements
