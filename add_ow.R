@@ -1015,8 +1015,9 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
       observe(toggleState("add_well_meas", condition = rv$ow_validity() & rv$weir_validity() &
                             (nchar(input$smp_id) > 0 | nchar(input$site_name) > 0) &
                             (nchar(input$component_id) > 0 | input$at_smp == 2) &
-                            (nchar(input$ow_suffix) > 0) & nchar(input$cth) > 0 & nchar(input$hts) > 0 &
+                            (nchar(input$ow_suffix) > 0) & !is.na(input$cth) & !is.na(input$hts) &
                             rv$toggle_suffix() &
+                            length(input$start_date) != 0 & 
                             nchar(rv$end_date_warning()) == 0)) #If there is no end date warning
       
       #toggle create new measurement checkbox
