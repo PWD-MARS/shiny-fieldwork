@@ -587,7 +587,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
       rv$ow_label_toggle <- reactive(if(nchar(input$ow_suffix) > 0 && grepl("GI|CS",input$ow_suffix, fixed = FALSE)) TRUE else FALSE)
       
       rv$cap_label <- reactive(if(rv$ow_label_toggle()) "Grate Elevation" else "Cap Elevation")
-      rv$bos_label <- reactive(if(rv$ow_label_toggle()) "Bottom of Structure Elevation" else "Bottom of Storage Elevation")
+      rv$bos_label <- reactive(if(rv$ow_label_toggle()) "Pipe Invert Elevation" else "Bottom of Storage Elevation")
       
       observe(updateNumericInput(session, "cap_elev", label = rv$cap_label()))
       observe(updateNumericInput(session, "bos_elev", label = rv$bos_label()))
