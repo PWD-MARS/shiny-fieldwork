@@ -26,6 +26,3 @@ vignettes/*.pdf
 *.knit.md
 # R Environment Variables
 .Renviron
-# RSC Connection files
-*.dcf
-rsconnect
