@@ -36,7 +36,7 @@ add_owUI <- function(id, label = "add_ow", site_names, html_req, future_req){
                selectInput(ns("at_smp"), html_req("At SMP?"), choices = c("", "Yes" = 1, "No" = 2), selected = NULL),
                
               # #Debug button
-               #actionButton(ns("BrowserButton"), "Click to Browse"),
+               # actionButton(ns("BrowserButton"), "Click to Browse"),
                
             #conditional specific to smp
              conditionalPanel(condition = "input.at_smp == 1", 
@@ -79,8 +79,8 @@ add_owUI <- function(id, label = "add_ow", site_names, html_req, future_req){
              ),
              
              #1.2 Stable Measurements sump/orifice ----
-             # Conditional panel to appear once location is selected and suffix is OW, GI, CO, or CS
-             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*')) || input.ow_suffix.match('GW.*')",
+             # Conditional panel to appear once location is selected and suffix is OW, GI, CO, SL, or CS
+             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*')) || input.ow_suffix.match('SL.*') || input.ow_suffix.match('GW.*')",
                               ns = ns,
                         #sidebar panel for 'permanent' location values 
                         sidebarPanel(width = 12,  
@@ -209,8 +209,8 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
   
       
       #Debugging Button
-      # observeEvent(input$BrowserButton,
-      # {browser()})
+        # observeEvent(input$BrowserButton,
+        # {browser()})
 
       
       #2.0.1 set up ------
@@ -1074,7 +1074,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
                                                       sumpdepth_lookup_uid, orifice_elev, orifice_lookup_uid,
                                                       custom_orificedepth_ft)
               VALUES(fieldwork.fun_get_ow_uid('", input$smp_id, "', '", rv$ow_suffix(), "', NULL), ", 
-              input$well_depth, ", ", rv$start_date(), ", ", rv$end_date(), ", ", 
+              ifelse(is.na(input$well_depth), 'NULL', input$well_depth), ", ", rv$start_date(), ", ", rv$end_date(), ", ", 
               rv$cth(), ", ", rv$hts(), ", ", rv$ctw(), ", ", rv$cto(), ", ", rv$weir(), ", ",
               iconv(rv$well_meas_notes(), "latin1", "ASCII", sub=""), ", ", #Strip unicode characters that WIN1252 encoding will choke on locally
               #This is dumb.
