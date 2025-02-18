@@ -1,12 +1,12 @@
-name: shiny-fieldwork
-title: shiny-fieldwork
+name: sandbox-shiny-fieldwork
+title: sandbox-shiny-fieldwork
 username: Jonathan.Bryant
 account: Jonathan.Bryant
 server: pwdrstudio.phila.gov
 hostUrl: https://pwdrstudio.phila.gov/__api__
-appId: 438
-bundleId: 2766
-url: https://pwdrstudio.phila.gov/content/12125e61-0529-4506-bf38-85a29956aed8/
+appId: 452
+bundleId: 2809
+url: https://pwdrstudio.phila.gov/content/1ea61c6b-2f07-438a-8603-4234f91b4803/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
