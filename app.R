@@ -66,6 +66,7 @@
   library(DT)
   #reactable for reactable tables
   library(reactable)
+ library(RPostgres)
 
 #0.1: database connection and global options --------
 
@@ -115,7 +116,7 @@
     
       #query site names (non SMP)
       site_name_query <- "select * from fieldwork.tbl_site_name_lookup"
-      site_names <- odbc::dbGetQuery(poolConn, site_name_query) %>% 
+      site_names <- dbGetQuery(poolConn, site_name_query) %>% 
         dplyr::arrange(site_name) %>% 
         dplyr::pull()
       
@@ -131,7 +132,7 @@
       ow.smp_id, ow.ow_suffix from fieldwork.viw_inventory_sensors_full inv
                           left join fieldwork.tbl_deployment d on d.inventory_sensors_uid = inv.inventory_sensors_uid AND d.collection_dtime_est is NULL
                             left join fieldwork.tbl_ow ow on ow.ow_uid = d.ow_uid"
-      hobo_list <- odbc::dbGetQuery(poolConn, hobo_list_query)
+      hobo_list <- dbGetQuery(poolConn, hobo_list_query)
       sensor_serial <- hobo_list$sensor_serial
       
       #Deployment purpose lookup table
@@ -229,12 +230,12 @@
     # 2.1: required variables -----
     #define global variables that will be defined each time server runs
     #query all SMP IDs
-    smp_id <- odbc::dbGetQuery(poolConn, paste0("select distinct smp_id from external.mat_assets")) %>% 
+    smp_id <- dbGetQuery(poolConn, paste0("select distinct smp_id from external.mat_assets")) %>% 
       dplyr::arrange(smp_id) %>% 
       dplyr::filter(smp_id != "" & smp_id != "--") %>%
       dplyr::pull()  
     
-    sys_id <- odbc::dbGetQuery(poolConn, paste0("select distinct system_id from external.mat_assets")) %>% 
+    sys_id <- dbGetQuery(poolConn, paste0("select distinct system_id from external.mat_assets")) %>% 
       dplyr::arrange(system_id) %>% 
       dplyr::filter(system_id != "" & system_id != "--") %>%
       dplyr::pull()
@@ -288,6 +289,9 @@
     #History
     cwl_history <- cwl_historyServer("history", parent_session = session, poolConn = poolConn, deploy = deploy)
 
+    session$onSessionEnded(function() {
+      stopApp()
+    })
 }
 
 #Run this function to run the app!
