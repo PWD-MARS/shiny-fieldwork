@@ -118,7 +118,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       #2.1.1 Headers ---------
       
       #Get the Project name, combine it with System ID, and create a reactive header
-      rv$sys_and_name_step <- reactive(dbGetQuery(poolConn, paste0("select system_id, project_name from fieldwork.viw_project_names where system_id = '", input$system_id, "'")))
+      rv$sys_and_name_step <- reactive(odbc::dbGetQuery(poolConn, paste0("select system_id, project_name from fieldwork.viw_project_names where system_id = '", input$system_id, "'")))
       
       rv$sys_and_name <- reactive(paste(rv$sys_and_name_step()$system_id[1], rv$sys_and_name_step()$project_name[1]))
       
@@ -132,7 +132,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       
       #2.1.2 Query and Display Tables -----
       srt_table_query <- reactive(paste0("SELECT * FROM fieldwork.viw_srt_full WHERE system_id = '", input$system_id, "'"))
-      rv$srt_table_db <- reactive(dbGetQuery(poolConn, srt_table_query()))
+      rv$srt_table_db <- reactive(odbc::dbGetQuery(poolConn, srt_table_query()))
       
       rv$srt_table <- reactive(rv$srt_table_db() %>% 
                                  mutate("test_date" = as.character(test_date), 
@@ -149,7 +149,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       
       #future table 
       future_srt_table_query <- reactive(paste0("SELECT * FROM fieldwork.viw_future_srt_full WHERE system_id = '", input$system_id, "' order by field_test_priority_lookup_uid"))
-      rv$future_srt_table_db <- reactive(dbGetQuery(poolConn, future_srt_table_query()))
+      rv$future_srt_table_db <- reactive(odbc::dbGetQuery(poolConn, future_srt_table_query()))
       
       rv$future_srt_table <- reactive(rv$future_srt_table_db() %>% 
                                         dplyr::select("system_id", "phase", "type", "dcia_ft2", "field_test_priority", "notes"))
@@ -242,7 +242,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       #update Impervous Drainage Area
       srt_dcia_query <- reactive(paste0("SELECT sys_impervda_ft2 FROM external.tbl_systembdv WHERE 
                                         system_id = '", input$system_id, "'"))
-      rv$dcia_x <- reactive(dbGetQuery(poolConn, srt_dcia_query()) %>% dplyr::pull())
+      rv$dcia_x <- reactive(odbc::dbGetQuery(poolConn, srt_dcia_query()) %>% dplyr::pull())
       rv$dcia <- reactive(as.numeric(rv$dcia_x()))
       observe(updateNumericInput(session, "dcia", value = rv$dcia()))
       
@@ -319,7 +319,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                                          iconv(rv$srt_summary(), "latin1", "ASCII", sub=""), #Strip unicode characters that WIN1252 encoding will choke on locally
                                          ", ", rv$priority_lookup_uid(), ")")
           
-         dbGetQuery(poolConn, add_future_srt_query)
+          odbc::dbGetQuery(poolConn, add_future_srt_query)
           
           # log the INSERT query, see utils.R
           insert.query.log(poolConn,
@@ -335,7 +335,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                                           field_test_priority_lookup_uid = ", rv$priority_lookup_uid(), "
                                           WHERE future_srt_uid = '", rv$future_srt_table_db()[input$future_srt_table_rows_selected, 1], "'")
           
-          dbGetQuery(poolConn, edit_future_srt_query)
+          odbc::dbGetQuery(poolConn, edit_future_srt_query)
           
           # log the UPDATE query, see utils.R
           insert.query.log(poolConn,
@@ -345,8 +345,8 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
           
         }
         
-        rv$future_srt_table_db <- reactive(dbGetQuery(poolConn, future_srt_table_query()))
-        rv$all_future_srt_table_db <- dbGetQuery(poolConn, all_future_srt_table_query)
+        rv$future_srt_table_db <- reactive(odbc::dbGetQuery(poolConn, future_srt_table_query()))
+        rv$all_future_srt_table_db <- odbc::dbGetQuery(poolConn, all_future_srt_table_query)
         reset("srt_date")
         reset("con_phase")
         reset("srt_type")
@@ -379,7 +379,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                                   rv$photos_uploaded(), ",", rv$sensor_collect_date(), ",", rv$qaqc_complete(), ",", 
                                   rv$srt_summary_date(), ", ", rv$sensor_deployed(), ")")
           
-          dbGetQuery(poolConn, add_srt_query)
+          odbc::dbGetQuery(poolConn, add_srt_query)
           
           # log the INSERT query, see utils.R
           insert.query.log(poolConn,
@@ -421,7 +421,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                                           WHERE future_srt_uid = '",
                                           rv$future_srt_table_db()[input$future_srt_table_rows_selected, 1], "'")
           
-          dbGetQuery(poolConn,del_future_srt_query)
+          odbc::dbGetQuery(poolConn,del_future_srt_query)
           
           # log the UPDATE query, see utils.R
           insert.query.log(poolConn,
@@ -446,14 +446,14 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
         }
         
         #update srt_table with new srt
-        rv$srt_table_db <- reactive(dbGetQuery(poolConn, srt_table_query()))
+        rv$srt_table_db <- reactive(odbc::dbGetQuery(poolConn, srt_table_query()))
         
         #update srt view with new/edited srt
         rv$all_srt_table_db <- reactive(dbGetQuery(poolConn, all_srt_table_query))
         
         #update future srt table in case a future srt was delisted 
-        rv$future_srt_table_db <- reactive(dbGetQuery(poolConn, future_srt_table_query()))
-        rv$all_future_srt_table_db <- dbGetQuery(poolConn, all_future_srt_table_query)
+        rv$future_srt_table_db <- reactive(odbc::dbGetQuery(poolConn, future_srt_table_query()))
+        rv$all_future_srt_table_db <- odbc::dbGetQuery(poolConn, all_future_srt_table_query)
         
         #clear contents aside from System ID
         reset("srt_date")
@@ -486,7 +486,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
         del_future_srt_query <- paste0("DELETE FROM fieldwork.tbl_future_srt WHERE future_srt_uid = '",
                                         rv$future_srt_table_db()[input$future_srt_table_rows_selected, 1], "'")
         
-        dbGetQuery(poolConn, del_future_srt_query)
+        odbc::dbGetQuery(poolConn, del_future_srt_query)
         
         # log the UPDATE query, see utils.R
         insert.query.log(poolConn,
@@ -495,8 +495,8 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                          session)
         
         #update future srt table
-        rv$future_srt_table_db <- reactive(dbGetQuery(poolConn, future_srt_table_query()))
-        rv$all_future_srt_table_db <- dbGetQuery(poolConn, all_future_srt_table_query)
+        rv$future_srt_table_db <- reactive(odbc::dbGetQuery(poolConn, future_srt_table_query()))
+        rv$all_future_srt_table_db <- odbc::dbGetQuery(poolConn, all_future_srt_table_query)
         
         #remove pop up
         removeModal()
@@ -542,10 +542,8 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       #2.2 View SRTs ---------
       
       #2.2.1 query and display table -------
-      all_srt_table_query <- "SELECT * FROM fieldwork.viw_srt_full WHERE sensor_deployed = true OR sensor_deployed = false ORDER BY test_date DESC"
+      all_srt_table_query <- "SELECT * FROM fieldwork.viw_srt_full ORDER BY test_date DESC"
       rv$all_srt_table_db <- reactive(dbGetQuery(poolConn, all_srt_table_query))
-      
-      
       
       #convert 1s and 0s to yes and no, make dates characters so they show properly, and round storm size
       rv$all_srt_table <- reactive(rv$all_srt_table_db() %>% 
@@ -559,7 +557,6 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
                                                    "photos_uploaded", "sensor_collection_date", "qaqc_complete",
                                                    "srt_summary_date", "turnaround_days", "srt_summary", "sensor_deployed"))
       
-      observe(glimpse(rv$all_srt_table()))
       output$all_srt_table <- renderReactable(
         reactable(rv$all_srt_table()[, 1:15], 
                   columns = list(
@@ -682,7 +679,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
       #2.3 Future SRTs tab ------
       #2.3.1 query and display table -----
       all_future_srt_table_query <- "select * from fieldwork.viw_future_srt_full order by field_test_priority_lookup_uid"
-      rv$all_future_srt_table_db <- dbGetQuery(poolConn, all_future_srt_table_query)
+      rv$all_future_srt_table_db <- odbc::dbGetQuery(poolConn, all_future_srt_table_query)
       
       rv$all_future_srt_table <- reactive(rv$all_future_srt_table_db %>% 
                                             mutate(across(c("sys_storagevolume_ft3", 
