@@ -1119,7 +1119,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
           
         }else{
           update_meas_query <- paste0(
-            "UPDATE fieldwork.tbl_well_measurements SET well_depth_ft = '", input$well_depth, "', 
+            "UPDATE fieldwork.tbl_well_measurements SET well_depth_ft = ", ifelse(is.na(input$well_depth), 'NULL', input$well_depth), ", 
             start_dtime_est = ", rv$start_date(), ", 
             end_dtime_est = ", rv$end_date(), ", 
             cap_to_hook_ft = ", rv$cth(), ", 
