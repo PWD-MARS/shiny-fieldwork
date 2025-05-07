@@ -432,7 +432,7 @@ SRTServer <- function(id, parent_session, poolConn, srt_types, con_phase, sys_id
         
         #check if a deployment exists for this test (if a sensor was used). If it does not, bring up a dialogue box asking the user
         #if they would like to create a deployment. If yes, that takes them to the deployment page
-        srt_deployment_exists_query <- paste0("select * from fieldwork.viw_deployment_full where term = 'SRT' and admin.fun_smp_to_system(smp_id) = '", input$system_id, "' and deployment_dtime_est < '", input$srt_date, "'::timestamp + interval '3 days' and deployment_dtime_est > '", input$srt_date, "'::timestamp - interval '3 days'")
+        srt_deployment_exists_query <- paste0("select * from fieldwork.viw_deployment_full where term = 'SRT' and admin.fun_smp_to_system(smp_id) = '", input$system_id, "' and deployment_dtime < '", input$srt_date, "'::timestamp + interval '3 days' and deployment_dtime > '", input$srt_date, "'::timestamp - interval '3 days'")
         
         srt_deployment_exists_table <- dbGetQuery(poolConn, srt_deployment_exists_query)
         

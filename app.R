@@ -75,8 +75,14 @@
   #set db connection
   #using a pool connection so separate connnections are unified
   #gets environmental variables saved in local or pwdrstudio environment
-  poolConn <- dbPool(odbc(), dsn = "mars14_datav2", uid = Sys.getenv("shiny_uid"), pwd = Sys.getenv("shiny_pwd"))
-  
+  poolConn <-     dbPool(
+      drv = RPostgres::Postgres(),
+      host = "PWDMARSDBS1",
+      port = 5434,
+      dbname = "sandbox_dtime",
+      user= Sys.getenv("shiny_uid"),
+      password = Sys.getenv("shiny_pwd"),
+      timezone = NULL)
   
   #disconnect from db on stop 
   onStop(function(){
@@ -123,7 +129,7 @@
       #Sensor Serial Number List
       hobo_list_query <-  "select inv.sensor_serial, inv.sensor_model, inv.date_purchased, 
       ow.smp_id, ow.ow_suffix from fieldwork.viw_inventory_sensors_full inv
-                          left join fieldwork.tbl_deployment d on d.inventory_sensors_uid = inv.inventory_sensors_uid AND d.collection_dtime_est is NULL
+                          left join fieldwork.tbl_deployment d on d.inventory_sensors_uid = inv.inventory_sensors_uid AND d.collection_dtime is NULL
                             left join fieldwork.tbl_ow ow on ow.ow_uid = d.ow_uid"
       hobo_list <- odbc::dbGetQuery(poolConn, hobo_list_query)
       sensor_serial <- hobo_list$sensor_serial
