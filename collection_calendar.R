@@ -96,7 +96,7 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
                                             dplyr::arrange(deployment_uid) %>% 
                                             #force tz to assure that today() is being properly compared to dates, and trim to ymd for appearance in app
                                             #filter based on the less than 80% or more than 80% capacity
-                                            mutate(deployment_dtime_est = lubridate::force_tz(deployment_dtime_est, "America/New_York") %>% lubridate::ymd(), 
+                                            mutate(deployment_dtime = lubridate::force_tz(deployment_dtime, "America/New_York") %>% lubridate::ymd(), 
                                                    date_80percent = lubridate::force_tz(date_80percent, "America/New_York") %>% lubridate::ymd(),
                                                    date_100percent = lubridate::force_tz(date_100percent, "America/New_York") %>% lubridate::ymd(), 
                                                    filter_80 = case_when(input$capacity_used == "Less than 80%" & date_80percent > today() ~ 1, 
@@ -126,11 +126,11 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       #select and rename columns to show in app
       rv$collect_table <- reactive(rv$collect_table_filter2() %>% 
                                      dplyr::select(smp_id, ow_suffix, project_name, type, term, previous_download_error, #research, designation,
-                                                   deployment_dtime_est,date_80percent,date_100percent)  %>% 
+                                                   deployment_dtime,date_80percent,date_100percent)  %>% 
                                      rename("SMP ID" = "smp_id", "OW Suffix" = "ow_suffix", "Project Name" = "project_name", "Purpose" = "type", 
                                             "Term" = "term", "Prev. DL Error" = "previous_download_error",
                                             #"Research" = "research", "Designation" = "designation",
-                                            "Deploy Date" = "deployment_dtime_est", 
+                                            "Deploy Date" = "deployment_dtime", 
                                             "80% Full Date" = "date_80percent", "100% Full Date" = "date_100percent"))
       
       #2.1 showing table ----
@@ -244,7 +244,7 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
           sensor_serial = reactive(rv$collect_table_db$sensor_serial),
           smp_id = reactive(rv$collect_table_db$smp_id),
           site_names = reactive(rv$collect_table_db$site_name),
-          deploy_dates = reactive(rv$collect_table_db$deployment_dtime_est),
+          deploy_dates = reactive(rv$collect_table_db$deployment_dtime),
           ow_suffix = reactive(rv$collect_table_db$ow_suffix),
           cal_smp_id = reactive(rv$collect_table_filter()$smp_id[input$collection_rows_selected]),
           site_name = reactive(rv$collect_table_filter()$site_name[input$collection_rows_selected]),

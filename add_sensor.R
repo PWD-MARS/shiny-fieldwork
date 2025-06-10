@@ -120,14 +120,14 @@ add_sensorServer <- function(id, parent_session, poolConn, sensor_model_lookup, 
       
       rv$history_dt <- reactive(odbc::dbGetQuery(poolConn, history_query) %>%
                                  select(sensor_serial, smp_site_name, ow_suffix, type, term,
-                                        deployment_dtime_est, collection_dtime_est,
+                                        deployment_dtime, collection_dtime,
                                         project_name, notes) %>%
-                                  dplyr::mutate("Deployment Time" = lubridate::as_date(deployment_dtime_est),
-                                                "Collection Time" = lubridate::as_date(collection_dtime_est)) %>%
+                                  dplyr::mutate("Deployment Time" = lubridate::as_date(deployment_dtime),
+                                                "Collection Time" = lubridate::as_date(collection_dtime)) %>%
                                   dplyr::filter(sensor_serial == input$serial_no))
       
       rv$sensor_history_display <- reactive(rv$history_dt() %>%
-                                              dplyr::select(-project_name,-deployment_dtime_est,-collection_dtime_est) %>%
+                                              dplyr::select(-project_name,-deployment_dtime,-collection_dtime) %>%
                                               rename("Serial Number" = "sensor_serial",
                                                      "SMP ID/Site Name" = "smp_site_name",
                                                      "Location" = "ow_suffix",

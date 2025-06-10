@@ -869,11 +869,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       active_table_query <- reactive(if(nchar(input$smp_id) > 0){
         paste0(
         "SELECT * FROM fieldwork.viw_active_deployments
-            WHERE smp_id = ", rv$smp_id(), " ORDER BY deployment_dtime_est")
+            WHERE smp_id = ", rv$smp_id(), " ORDER BY deployment_dtime")
       }else{
         paste0(
           "SELECT * FROM fieldwork.viw_active_deployments
-            WHERE site_name = '", input$site_name, "' ORDER BY deployment_dtime_est")
+            WHERE site_name = '", input$site_name, "' ORDER BY deployment_dtime")
       })
       
       #create table as a reactive value based on query
@@ -886,8 +886,8 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       rv$active_table <- reactive(rv$active_table_db() %>% 
                                     mutate(across(where(is.POSIXct), trunc, "days")) %>% 
                                     mutate(across(where(is.POSIXlt), as.character)) %>% 
-                                    dplyr::select(deployment_dtime_est, ow_suffix, type, term, research, interval_min, sensor_serial, date_80percent, date_100percent) %>% 
-                                    dplyr::rename("Deploy Date" = "deployment_dtime_est", 
+                                    dplyr::select(deployment_dtime, ow_suffix, type, term, research, interval_min, sensor_serial, date_80percent, date_100percent) %>% 
+                                    dplyr::rename("Deploy Date" = "deployment_dtime", 
                                                   "Location" = "ow_suffix", "Purpose" = "type", "Term" = "term",
                                                   "Research" = "research", "Interval (min)" = "interval_min", "Sensor ID" = "sensor_serial",
                                                   "80% Full Date" = "date_80percent", "100% Full Date" = "date_100percent"))
@@ -906,11 +906,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       old_table_query <- reactive(if(nchar(input$smp_id) > 0){
         paste0(
           "SELECT * FROM fieldwork.viw_previous_deployments
-            WHERE smp_id = ", rv$smp_id(), " ORDER BY deployment_dtime_est desc")
+            WHERE smp_id = ", rv$smp_id(), " ORDER BY deployment_dtime desc")
       }else{
         paste0(
           "SELECT * FROM fieldwork.viw_previous_deployments
-            WHERE site_name = '", input$site_name, "' ORDER BY deployment_dtime_est desc")
+            WHERE site_name = '", input$site_name, "' ORDER BY deployment_dtime desc")
       })
       
       
@@ -924,11 +924,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
                                                            . == 0 ~ "No"))) %>% 
                                  mutate(across(where(is.POSIXct), trunc, "days")) %>% 
                                  mutate(across(where(is.POSIXlt), as.character)) %>% 
-                                 dplyr::select(deployment_dtime_est, collection_dtime_est, ow_suffix, type, term, research, interval_min, sensor_serial) %>% 
-                                 dplyr::rename("Deploy Date" = "deployment_dtime_est", "Location" = "ow_suffix", 
+                                 dplyr::select(deployment_dtime, collection_dtime, ow_suffix, type, term, research, interval_min, sensor_serial) %>% 
+                                 dplyr::rename("Deploy Date" = "deployment_dtime", "Location" = "ow_suffix", 
                                                "Purpose" = "type", "Term" = "term", "Research" = "research",
                                                "Interval (min)" = "interval_min", "Sensor ID" = "sensor_serial", 
-                                               "Collection Date" = "collection_dtime_est"))
+                                               "Collection Date" = "collection_dtime"))
       
       #render datatable
       output$prev_deployment <- renderDT(
@@ -1063,9 +1063,9 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       })
       
       rv$deploy_date <- reactive(if(length(rv$active()) > 0){
-        rv$active_table_db()$deployment_dtime_est[rv$active()] 
+        rv$active_table_db()$deployment_dtime[rv$active()] 
       }else if(length(rv$prev()) > 0){
-        rv$old_table_db()$deployment_dtime_est[rv$prev()]
+        rv$old_table_db()$deployment_dtime[rv$prev()]
       }else if(length(rv$future()) > 0){
         NA
       })
@@ -1073,7 +1073,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       rv$collect <- reactive(if(length(rv$active()) > 0){
         NA 
       }else if(length(rv$prev()) > 0){
-        rv$old_table_db()$collection_dtime_est[rv$prev()]
+        rv$old_table_db()$collection_dtime[rv$prev()]
       }else if(length(rv$future()) > 0){
         NA
       })
@@ -1170,11 +1170,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       #check if the are current measurements at monitoring location (if it is not an SW or DL)
       rv$end_dates_at_ow_uid <- reactive(
         if(nchar(input$smp_id) > 0 & nchar(input$well_name) > 0){
-          odbc::dbGetQuery(poolConn, paste0("select count(end_dtime_est) from fieldwork.viw_ow_plus_measurements 
+          odbc::dbGetQuery(poolConn, paste0("select count(end_dtime) from fieldwork.viw_ow_plus_measurements 
                                                        where smp_id = '", input$smp_id, "' and ow_suffix = '", input$well_name, "' and
                                           well_measurements_uid is not null")) %>% pull()
         }else if(nchar(input$site_name) > 0 & nchar(input$well_name) > 0){
-          odbc::dbGetQuery(poolConn, paste0("select count(end_dtime_est) from fieldwork.viw_ow_plus_measurements 
+          odbc::dbGetQuery(poolConn, paste0("select count(end_dtime) from fieldwork.viw_ow_plus_measurements 
                                                        where site_name = '", input$site_name, "' and ow_suffix = '", input$well_name, "' and
                                           well_measurements_uid is not null")) %>%  pull()
         }
@@ -1206,8 +1206,8 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       rv$count_end_date <- reactive(
         odbc::dbGetQuery(poolConn, paste0("select count(*) from fieldwork.viw_ow_plus_measurements
                                           where smp_id = '", input$smp_id, "' and ow_suffix = '", input$well_name, "' and 
-                                          well_measurements_uid is not null and start_dtime_est <= '", input$deploy_date, "'
-                                          and end_dtime_est is null or end_dtime_est >= '", input$collect_date, "'")) %>% pull()
+                                          well_measurements_uid is not null and start_dtime <= '", input$deploy_date, "'
+                                          and end_dtime is null or end_dtime >= '", input$collect_date, "'")) %>% pull()
       )
       
       #check if the well is a Shallow Well or Datalogger - they do not require measurements so we don't want a popup
@@ -1293,9 +1293,9 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       observeEvent(input$confirm_deploy, {
         if(rv$add_new()){
           #write new deployment
-          new_dep_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime_est, ow_uid,
+          new_dep_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime, ow_uid,
                                    inventory_sensors_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
-                                   interval_min, collection_dtime_est, notes, download_error, deployment_dtw_or_depth_ft,
+                                   interval_min, collection_dtime, notes, download_error, deployment_dtw_or_depth_ft,
                                    collection_dtw_or_depth_ft) VALUES ('", 
                                   input$deploy_date,
                                   "', fieldwork.fun_get_ow_uid(",rv$smp_id(),", '",input$well_name, "', ",rv$site_name_lookup_uid(), "), ",
@@ -1321,14 +1321,14 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
           
         }else{
           #update existing deployment
-          update_dep_query <- paste0("UPDATE fieldwork.tbl_deployment SET deployment_dtime_est = '", input$deploy_date, "', 
+          update_dep_query <- paste0("UPDATE fieldwork.tbl_deployment SET deployment_dtime = '", input$deploy_date, "', 
                                   ow_uid = fieldwork.fun_get_ow_uid(",rv$smp_id(),", '", input$well_name, "', ", rv$site_name_lookup_uid(), "), 
                                   inventory_sensors_uid = ",  rv$inventory_sensors_uid_null(), ", 
                                   sensor_purpose = '", rv$purpose(), "',
                                   long_term_lookup_uid = '", rv$term(), "',
                                   research_lookup_uid = ", rv$research_lookup_uid(), ",
                                   interval_min = '", input$interval, "',
-                                  collection_dtime_est = ", rv$collect_date(), ",
+                                  collection_dtime = ", rv$collect_date(), ",
                                   notes = ", iconv(rv$notes(), "latin1", "ASCII", sub=""), ", 
                                   download_error = ", rv$download_error(), ", 
                                   deployment_dtw_or_depth_ft = ", rv$deploy_depth_to_water(), ", 
@@ -1367,7 +1367,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
         #write redeployment
         if(rv$redeploy() == TRUE){
           
-          redeploy_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime_est, ow_uid,
+          redeploy_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime, ow_uid,
                                     inventory_sensors_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
                                     interval_min, notes, deployment_dtw_or_depth_ft)
                                     VALUES (", rv$collect_date(),

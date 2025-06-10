@@ -412,17 +412,17 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
       rv$ow_table <- reactive(if(nchar(input$smp_id) > 0){
         
         rv$ow_view_db() %>% 
-              dplyr::select("smp_id", "ow_suffix", "installation_height_ft", "deployment_depth_ft", "sumpdepth_ft", "orificedepth_ft","start_dtime_est", "end_dtime_est") %>% 
-              mutate_at(c("start_dtime_est", "end_dtime_est"), as.character) %>% 
+              dplyr::select("smp_id", "ow_suffix", "installation_height_ft", "deployment_depth_ft", "sumpdepth_ft", "orificedepth_ft","start_dtime", "end_dtime") %>% 
+              mutate_at(c("start_dtime", "end_dtime"), as.character) %>% 
               dplyr::rename("SMP ID" = "smp_id", "Location" = "ow_suffix", "Installation Height (ft)" = "installation_height_ft", 
-                            "Deployment Depth (ft)" = "deployment_depth_ft", "Sump Depth (ft)" = "sumpdepth_ft", "Orifice Depth (ft)" = "orificedepth_ft","Start Date" = "start_dtime_est", "End Date" = "end_dtime_est")
+                            "Deployment Depth (ft)" = "deployment_depth_ft", "Sump Depth (ft)" = "sumpdepth_ft", "Orifice Depth (ft)" = "orificedepth_ft","Start Date" = "start_dtime", "End Date" = "end_dtime")
       }else{
 
         rv$ow_view_db() %>% 
-          dplyr::select("site_name", "ow_suffix", "installation_height_ft", "deployment_depth_ft", "sumpdepth_ft", "orificedepth_ft", "start_dtime_est", "end_dtime_est") %>% 
-          mutate_at(c("start_dtime_est", "end_dtime_est"), as.character) %>% 
+          dplyr::select("site_name", "ow_suffix", "installation_height_ft", "deployment_depth_ft", "sumpdepth_ft", "orificedepth_ft", "start_dtime", "end_dtime") %>% 
+          mutate_at(c("start_dtime", "end_dtime"), as.character) %>% 
           dplyr::rename("Site Name" = "site_name", "Location" = "ow_suffix", "Installation Height (ft)" = "installation_height_ft", 
-                        "Deployment Depth (ft)" = "deployment_depth_ft", "Sump Depth (ft)" = "sumpdepth_ft", "Orifice Depth (ft)" = "orificedepth_ft", "Start Date" = "start_dtime_est", "End Date" = "end_dtime_est")}
+                        "Deployment Depth (ft)" = "deployment_depth_ft", "Sump Depth (ft)" = "sumpdepth_ft", "Orifice Depth (ft)" = "orificedepth_ft", "Start Date" = "start_dtime", "End Date" = "end_dtime")}
       )
       
       #render ow table
@@ -849,8 +849,8 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
         updateNumericInput(session, "calcd_orifice", value = (input$cap_elev - input$orifice_elev))
 
         #get dates from table
-        rv$start_date_edit <- rv$ow_view_db()$start_dtime_est[input$ow_table_rows_selected]
-        rv$end_date_edit <- rv$ow_view_db()$end_dtime_est[input$ow_table_rows_selected]
+        rv$start_date_edit <- rv$ow_view_db()$start_dtime[input$ow_table_rows_selected]
+        rv$end_date_edit <- rv$ow_view_db()$end_dtime[input$ow_table_rows_selected]
         
         #update inputs in app with values from table
         updateDateInput(session, "start_date", value = rv$start_date_edit)
@@ -982,11 +982,11 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
       #check if there are end dates to the existing measurements at this ow
       rv$end_dates_at_ow_uid <- reactive(
         if(nchar(input$smp_id) > 0 & nchar(rv$ow_suffix()) > 0){
-          odbc::dbGetQuery(poolConn, paste0("select end_dtime_est from fieldwork.viw_ow_plus_measurements 
+          odbc::dbGetQuery(poolConn, paste0("select end_dtime from fieldwork.viw_ow_plus_measurements 
                                                        where smp_id = '", input$smp_id, "' and ow_suffix = '", rv$ow_suffix(), "' and
                                           well_measurements_uid is not null")) %>% pull()
         }else if(nchar(input$site_name) > 0 & nchar(rv$ow_suffix()) > 0){
-          odbc::dbGetQuery(poolConn, paste0("select end_dtime_est from fieldwork.viw_ow_plus_measurements 
+          odbc::dbGetQuery(poolConn, paste0("select end_dtime from fieldwork.viw_ow_plus_measurements 
                                                        where site_name = '", input$site_name, "' and ow_suffix = '", rv$ow_suffix(), "' and
                                           well_measurements_uid is not null")) %>%  pull()
         }
@@ -1067,7 +1067,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
       observeEvent(input$add_well_meas, {
         if(length(input$ow_table_rows_selected) == 0 | length(rv$well_measurements_at_ow_uid()) == 0 | input$new_measurement == TRUE){
           if(input$at_smp == 1){
-            add_smp_meas_query <- paste0( "INSERT INTO fieldwork.tbl_well_measurements (ow_uid, well_depth_ft, start_dtime_est, end_dtime_est, 
+            add_smp_meas_query <- paste0( "INSERT INTO fieldwork.tbl_well_measurements (ow_uid, well_depth_ft, start_dtime, end_dtime, 
                                                       cap_to_hook_ft, hook_to_sensor_ft, 
                                                       cap_to_weir_ft, cap_to_orifice_ft, weir, notes,
                                                       cap_elev, bottom_stone_elev, custom_sumpdepth_ft,
@@ -1093,7 +1093,7 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
           
             }else{
             
-              add_site_meas_query <- paste0("INSERT INTO fieldwork.tbl_well_measurements (ow_uid, well_depth_ft, start_dtime_est, end_dtime_est, 
+              add_site_meas_query <- paste0("INSERT INTO fieldwork.tbl_well_measurements (ow_uid, well_depth_ft, start_dtime, end_dtime, 
                                                       cap_to_hook_ft, hook_to_sensor_ft, 
                                                       cap_to_weir_ft, cap_to_orifice_ft, weir, notes,
                                                       cap_elev, bottom_stone_elev, custom_sumpdepth_ft,
@@ -1120,8 +1120,8 @@ add_owServer <- function(id, parent_session, smp_id, poolConn, deploy) {
         }else{
           update_meas_query <- paste0(
             "UPDATE fieldwork.tbl_well_measurements SET well_depth_ft = ", ifelse(is.na(input$well_depth), 'NULL', input$well_depth), ", 
-            start_dtime_est = ", rv$start_date(), ", 
-            end_dtime_est = ", rv$end_date(), ", 
+            start_dtime = ", rv$start_date(), ", 
+            end_dtime = ", rv$end_date(), ", 
             cap_to_hook_ft = ", rv$cth(), ", 
             hook_to_sensor_ft = ", rv$hts(), ", 
             cap_to_weir_ft = ", rv$ctw(), ", 
