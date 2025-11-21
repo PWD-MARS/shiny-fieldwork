@@ -5,7 +5,7 @@
 add_sensorUI <- function(id, label = "add_sensor", sensor_model_lookup, html_req, sensor_status_lookup, sensor_issue_lookup){
   #initialize namespace
   ns <- NS(id)
-  tabPanel(title = "Add/Edit Sensor",value = "add_sensor",
+  tabPanel(title = "Add/Edit Sensor (Use New App)",value = "add_sensor",
           titlePanel("Add Sensor to Inventory or Edit Existing Sensor"),
           #1.1 sidebarPanel-----
           sidebarPanel(
