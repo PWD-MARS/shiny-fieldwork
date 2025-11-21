@@ -204,9 +204,11 @@
                    #Add/Edit Location
                     add_owUI("add_ow", site_names = site_names, html_req = html_req, future_req = future_req),
                    #Add/Edit Sensor
-                    add_sensorUI("add_sensor", sensor_model_lookup = sensor_model_lookup, html_req = html_req,
-                                 sensor_status_lookup = sensor_status_lookup,
-                                 sensor_issue_lookup = sensor_issue_lookup),
+                   hidden(
+                     add_sensorUI("add_sensor", sensor_model_lookup = sensor_model_lookup, html_req = html_req,
+                                  sensor_status_lookup = sensor_status_lookup,
+                                  sensor_issue_lookup = sensor_issue_lookup)
+                   ),
                    #SRT (Add/Edit SRT, View SRTs, View Future SRTs)
                     SRTUI("srt", srt_types = srt_types, html_req = html_req,
                           con_phase = con_phase, priority = priority, future_req = future_req),
