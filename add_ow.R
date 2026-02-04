@@ -80,7 +80,7 @@ add_owUI <- function(id, label = "add_ow", site_names, html_req, future_req){
              
              #1.2 Stable Measurements sump/orifice ----
              # Conditional panel to appear once location is selected and suffix is OW, GI, CO, SL, or CS
-             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*')) || input.ow_suffix.match('SL.*') || input.ow_suffix.match('GW.*')",
+             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('MH.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*')) || input.ow_suffix.match('SL.*') || input.ow_suffix.match('GW.*')",
                               ns = ns,
                         #sidebar panel for 'permanent' location values 
                         sidebarPanel(width = 12,  
@@ -114,7 +114,7 @@ add_owUI <- function(id, label = "add_ow", site_names, html_req, future_req){
                                            column(6, numericInput(ns("cto"), "Cap-to-Orifice (ft)", value = NULL, step = .0001))))
                         )),
              # Conditional panel to appear once location is selected and suffix is OW or GI
-             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*'))",
+             conditionalPanel(condition = "input.at_smp > 0 && (input.ow_suffix.match('OW.*') || input.ow_suffix.match('GI.*') || input.ow_suffix.match('CS.*') || input.ow_suffix.match('CO.*') || input.ow_suffix.match('MH.*'))",
                              ns = ns,
                              sidebarPanel(width = 12,
                             fluidRow(
