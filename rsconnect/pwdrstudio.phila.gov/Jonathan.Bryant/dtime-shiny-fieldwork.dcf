@@ -5,8 +5,8 @@ account: Jonathan.Bryant
 server: pwdrstudio.phila.gov
 hostUrl: https://pwdrstudio.phila.gov/__api__
 appId: 509
-bundleId: 3692
-url: https://pwdrstudio.phila.gov/content/6cee8f74-491c-46a5-8d60-e72ac902d660/
+bundleId: 3912
+url: https://pwdrstudio.phila.gov/mars/fieldwork/
 version: 1
 asMultiple: FALSE
 asStatic: FALSE
