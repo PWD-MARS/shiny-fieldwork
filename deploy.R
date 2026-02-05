@@ -1348,10 +1348,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
         #write sensor status
         if(input$sensor_broken == TRUE){
           
-          update_sensor_query <- paste0("UPDATE fieldwork.tbl_inventory_sensors SET sensor_status_lookup_uid = '2', 
+          update_sensor_query <- paste0("UPDATE fieldwork.tbl_sensor_status_log SET sensor_status_lookup_uid = '2', 
                                          sensor_issue_lookup_uid_one = ", rv$sensor_issue_lookup_uid_one(), ",
                                          sensor_issue_lookup_uid_two = ", rv$sensor_issue_lookup_uid_two(), ", 
-                                         request_data = ", rv$request_data(), "
+                                         request_data = ", rv$request_data(), ", 
+                                         date = ", Sys.Date(), "
                                          WHERE sensor_serial = '", input$sensor_id, "'")
           
           dbGetQuery(poolConn, update_sensor_query)
