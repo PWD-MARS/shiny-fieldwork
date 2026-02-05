@@ -1348,18 +1348,37 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
         #write sensor status
         if(input$sensor_broken == TRUE){
           
-          update_sensor_query <- paste0("UPDATE fieldwork.tbl_sensor_status_log SET sensor_status_lookup_uid = '2', 
-                                         sensor_issue_lookup_uid_one = ", rv$sensor_issue_lookup_uid_one(), ",
-                                         sensor_issue_lookup_uid_two = ", rv$sensor_issue_lookup_uid_two(), ", 
-                                         request_data = ", rv$request_data(), ", 
-                                         date = ", Sys.Date(), "
-                                         WHERE sensor_serial = '", input$sensor_id, "'")
+          # update_sensor_query <- paste0("UPDATE fieldwork.tbl_sensor_status_log SET sensor_status_lookup_uid = '2', 
+          #                                sensor_issue_lookup_uid_one = ", rv$sensor_issue_lookup_uid_one(), ",
+          #                                sensor_issue_lookup_uid_two = ", rv$sensor_issue_lookup_uid_two(), ", 
+          #                                request_data = ", rv$request_data(), ", 
+          #                                date = ", Sys.Date(), "
+          #                                WHERE sensor_serial = '", input$sensor_id, "'")
+          # 
+          insert_sensor_query <- paste0(
+                                         "INSERT INTO fieldwork.tbl_sensor_status_log (
+                                         sensor_serial,
+                                         sensor_status_lookup_uid,
+                                         sensor_issue_lookup_uid_one,
+                                         sensor_issue_lookup_uid_two,
+                                         request_data,
+                                         date
+                                       ) VALUES (
+                                         ", input$sensor_id, ",
+                                         2,
+                                         ", rv$sensor_issue_lookup_uid_one(), ",
+                                         ", rv$sensor_issue_lookup_uid_two(), ",
+                                         ", rv$request_data(), ",
+                                         '", Sys.Date(), "'
+                                       )"
+                                              )
           
-          dbGetQuery(poolConn, update_sensor_query)
+          
+          dbGetQuery(poolConn, insert_sensor_query)
           
           # log the UPDATE query, see utils.R
           insert.query.log(poolConn,
-                           update_sensor_query,
+                           insert_sensor_query,
                            tab_name,
                            session)
           
