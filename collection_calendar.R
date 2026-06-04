@@ -67,7 +67,19 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       
       #2.0.4 querying tables ----
       #query the collection calendar and arrange by deployment_uid
-      collect_query <- "select * from fieldwork.viw_active_deployments"
+      collect_query <- "SELECT
+  main.*,
+  sub.test_date,
+  sub.date_purchased_asdate
+FROM fieldwork.viw_active_deployments AS main
+LEFT JOIN (
+  SELECT
+    inventory_sensors_uid,
+    test_date,
+    cast(date_purchased as DATE) as date_purchased_asdate
+  FROM fieldwork.viw_sensor_tests_full
+) AS sub
+ON main.inventory_sensors_uid = sub.inventory_sensors_uid;"
       rv$collect_table_db<- odbc::dbGetQuery(poolConn, collect_query)
       
       #query the future deployment table
@@ -99,6 +111,7 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
                                             mutate(deployment_dtime = lubridate::force_tz(deployment_dtime, "America/New_York") %>% lubridate::ymd(), 
                                                    date_80percent = lubridate::force_tz(date_80percent, "America/New_York") %>% lubridate::ymd(),
                                                    date_100percent = lubridate::force_tz(date_100percent, "America/New_York") %>% lubridate::ymd(), 
+                                                   testing_deadline = data.table::fifelse(is.na(test_date), date_purchased_asdate, test_date + lubridate::years(2)),
                                                    filter_80 = case_when(input$capacity_used == "Less than 80%" & date_80percent > today() ~ 1, 
                                                                          input$capacity_used == "Less than 80%" & date_80percent < today() ~ 0, 
                                                                          input$capacity_used == "80% or more" & date_80percent < today() ~ 1, 
@@ -126,12 +139,12 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       #select and rename columns to show in app
       rv$collect_table <- reactive(rv$collect_table_filter2() %>% 
                                      dplyr::select(smp_id, ow_suffix, project_name, type, term, previous_download_error, #research, designation,
-                                                   deployment_dtime,date_80percent,date_100percent)  %>% 
+                                                   deployment_dtime,date_80percent,date_100percent, testing_deadline)  %>% 
                                      rename("SMP ID" = "smp_id", "OW Suffix" = "ow_suffix", "Project Name" = "project_name", "Purpose" = "type", 
                                             "Term" = "term", "Prev. DL Error" = "previous_download_error",
                                             #"Research" = "research", "Designation" = "designation",
                                             "Deploy Date" = "deployment_dtime", 
-                                            "80% Full Date" = "date_80percent", "100% Full Date" = "date_100percent"))
+                                            "80% Full Date" = "date_80percent", "100% Full Date" = "date_100percent", "Testing Deadline" = "testing_deadline"))
       
       #2.1 showing table ----
       output$collection <- renderDT(
@@ -152,6 +165,11 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
           ) %>%
           formatStyle(
             '100% Full Date',
+            backgroundColor = styleInterval(lubridate::today(), c('#990000', 'transparent')),
+            color = styleInterval(lubridate::today(), c('#C8C8C8', '#c8c8c8'))
+          ) %>% 
+          formatStyle(
+            'Testing Deadline',
             backgroundColor = styleInterval(lubridate::today(), c('#990000', 'transparent')),
             color = styleInterval(lubridate::today(), c('#C8C8C8', '#c8c8c8'))
           ) %>% 
