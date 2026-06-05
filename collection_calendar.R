@@ -68,18 +68,18 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       #2.0.4 querying tables ----
       #query the collection calendar and arrange by deployment_uid
       collect_query <- "SELECT
-  main.*,
-  sub.test_date,
-  sub.date_purchased_asdate
-FROM fieldwork.viw_active_deployments AS main
-LEFT JOIN (
-  SELECT
-    inventory_sensors_uid,
-    test_date,
-    cast(date_purchased as DATE) as date_purchased_asdate
-  FROM fieldwork.viw_sensor_recent_test_full
-) AS sub
-ON main.inventory_sensors_uid = sub.inventory_sensors_uid;"
+                  main.*,
+                  sub.recent_test_date,
+                  sub.date_purchased_asdate
+                FROM fieldwork.viw_active_deployments AS main
+                LEFT JOIN (
+                  SELECT
+                    inventory_sensors_uid,
+                    recent_test_date,
+                    cast(date_purchased as DATE) as date_purchased_asdate
+                  FROM fieldwork.viw_sensor_recent_tests
+                ) AS sub
+                ON main.inventory_sensors_uid = sub.inventory_sensors_uid"
       rv$collect_table_db<- odbc::dbGetQuery(poolConn, collect_query)
       
       #query the future deployment table
@@ -111,7 +111,7 @@ ON main.inventory_sensors_uid = sub.inventory_sensors_uid;"
                                             mutate(deployment_dtime = lubridate::force_tz(deployment_dtime, "America/New_York") %>% lubridate::ymd(), 
                                                    date_80percent = lubridate::force_tz(date_80percent, "America/New_York") %>% lubridate::ymd(),
                                                    date_100percent = lubridate::force_tz(date_100percent, "America/New_York") %>% lubridate::ymd(), 
-                                                   testing_deadline = data.table::fifelse(is.na(test_date), date_purchased_asdate, test_date + lubridate::years(2)),
+                                                   testing_deadline = data.table::fifelse(is.na(recent_test_date), date_purchased_asdate, recent_test_date + lubridate::years(2)),
                                                    filter_80 = case_when(input$capacity_used == "Less than 80%" & date_80percent > today() ~ 1, 
                                                                          input$capacity_used == "Less than 80%" & date_80percent < today() ~ 0, 
                                                                          input$capacity_used == "80% or more" & date_80percent < today() ~ 1, 
