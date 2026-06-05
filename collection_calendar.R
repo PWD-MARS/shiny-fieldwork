@@ -77,7 +77,7 @@ LEFT JOIN (
     inventory_sensors_uid,
     test_date,
     cast(date_purchased as DATE) as date_purchased_asdate
-  FROM fieldwork.viw_sensor_tests_full
+  FROM fieldwork.viw_sensor_recent_test_full
 ) AS sub
 ON main.inventory_sensors_uid = sub.inventory_sensors_uid;"
       rv$collect_table_db<- odbc::dbGetQuery(poolConn, collect_query)
