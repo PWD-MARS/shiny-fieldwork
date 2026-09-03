@@ -103,15 +103,19 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       rv$term_filter <- reactive(if(input$term_filter == 1.5){c(0, 1, 2, 3, 4)} else {input$term_filter})
       rv$purpose_filter <- reactive(if(input$purpose_filter == 1.5){c(0, 1, 2, 3)} else {input$purpose_filter})
       
+      #Pull sensor testing deadlines
+      rv$deadlines <- reactive(dbGetQuery(poolConn, "SELECT sensor_serial, test_deadline::date as testing_deadline FROM fieldwork.viw_sensor_deadlines"))
+
+
       #arrange and filtered the collection calendar
       rv$collect_table_filter <- reactive(rv$collect_table_db %>% 
                                             dplyr::arrange(deployment_uid) %>% 
+                                            dplyr::left_join(rv$deadlines(), by = "sensor_serial") %>%
                                             #force tz to assure that today() is being properly compared to dates, and trim to ymd for appearance in app
                                             #filter based on the less than 80% or more than 80% capacity
                                             mutate(deployment_dtime = lubridate::force_tz(deployment_dtime, "America/New_York") %>% lubridate::ymd(), 
                                                    date_80percent = lubridate::force_tz(date_80percent, "America/New_York") %>% lubridate::ymd(),
                                                    date_100percent = lubridate::force_tz(date_100percent, "America/New_York") %>% lubridate::ymd(), 
-                                                   testing_deadline = data.table::fifelse(is.na(recent_test_date), date_purchased_asdate, recent_test_date + lubridate::years(2)),
                                                    filter_80 = case_when(input$capacity_used == "Less than 80%" & date_80percent > today() ~ 1, 
                                                                          input$capacity_used == "Less than 80%" & date_80percent < today() ~ 0, 
                                                                          input$capacity_used == "80% or more" & date_80percent < today() ~ 1, 
