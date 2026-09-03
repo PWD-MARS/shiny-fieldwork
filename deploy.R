@@ -742,11 +742,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       rv$purpose_null <- reactive(if(nchar(input$sensor_purpose) == 0) "NULL" else paste0(rv$purpose()))
       
       
-      rv$inventory_sensors_uid <- reactive(odbc::dbGetQuery(poolConn, paste0(
-        "SELECT inventory_sensors_uid FROM fieldwork.tbl_inventory_sensors WHERE sensor_serial = '", input$sensor_id, "'"
+      rv$sensor_uid <- reactive(odbc::dbGetQuery(poolConn, paste0(
+        "SELECT sensor_uid FROM sensors.tbl_sensor WHERE sensor_serial = '", input$sensor_id, "'"
       )))
       
-      rv$inventory_sensors_uid_null <- reactive(if(nchar(input$sensor_id) == 0) "NULL" else paste0("'", rv$inventory_sensors_uid(), "'"))
+      rv$sensor_uid_null <- reactive(if(nchar(input$sensor_id) == 0) "NULL" else paste0("'", rv$sensor_uid(), "'"))
       
       rv$interval_min <- reactive(if(nchar(input$interval) == 0) "NULL" else (paste0("'", input$interval, "'")))
       rv$deploy_depth_to_water <- reactive(if(is.na(input$deploy_depth_to_water)) "NULL" else paste0("'", input$deploy_depth_to_water, "'"))
@@ -806,8 +806,8 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       )
       
       #get sensor uid from sensor id
-      rv$new_inventory_sensors_uid <- reactive(odbc::dbGetQuery(poolConn, paste0(
-        "SELECT inventory_sensors_uid FROM fieldwork.tbl_inventory_sensors WHERE sensor_serial = ", rv$new_sensor_id()
+      rv$new_sensor_uid <- reactive(odbc::dbGetQuery(poolConn, paste0(
+        "SELECT sensor_uid FROM sensors.tbl_sensor WHERE sensor_serial = ", rv$new_sensor_id()
       )))
       
       #get sensor issue lookup uid and let it be NULL (for issue #1 and issue #2)
@@ -1296,12 +1296,12 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
         if(rv$add_new()){
           #write new deployment
           new_dep_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime, ow_uid,
-                                   inventory_sensors_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
+                                   sensor_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
                                    interval_min, collection_dtime, notes, download_error, deployment_dtw_or_depth_ft,
                                    collection_dtw_or_depth_ft) VALUES ('", 
                                   input$deploy_date,
                                   "', fieldwork.fun_get_ow_uid(",rv$smp_id(),", '",input$well_name, "', ",rv$site_name_lookup_uid(), "), ",
-                                  rv$inventory_sensors_uid_null(), ",'",
+                                  rv$sensor_uid_null(), ",'",
                                   rv$purpose(), "','",
                                   rv$term(), "',", 
                                   rv$research_lookup_uid(), ",'",
@@ -1325,7 +1325,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
           #update existing deployment
           update_dep_query <- paste0("UPDATE fieldwork.tbl_deployment SET deployment_dtime = '", input$deploy_date, "', 
                                   ow_uid = fieldwork.fun_get_ow_uid(",rv$smp_id(),", '", input$well_name, "', ", rv$site_name_lookup_uid(), "), 
-                                  inventory_sensors_uid = ",  rv$inventory_sensors_uid_null(), ", 
+                                  sensor_uid = ",  rv$sensor_uid_null(), ", 
                                   sensor_purpose = '", rv$purpose(), "',
                                   long_term_lookup_uid = '", rv$term(), "',
                                   research_lookup_uid = ", rv$research_lookup_uid(), ",
@@ -1390,11 +1390,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
         if(rv$redeploy() == TRUE){
           
           redeploy_query <- paste0("INSERT INTO fieldwork.tbl_deployment (deployment_dtime, ow_uid,
-                                    inventory_sensors_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
+                                    sensor_uid, sensor_purpose, long_term_lookup_uid, research_lookup_uid,
                                     interval_min, notes, deployment_dtw_or_depth_ft)
                                     VALUES (", rv$collect_date(),
                                    ", fieldwork.fun_get_ow_uid(",rv$smp_id(),", '", input$well_name, "', ", rv$site_name_lookup_uid(), "), '",
-                                   rv$new_inventory_sensors_uid(), "','",
+                                   rv$new_sensor_uid(), "','",
                                    rv$purpose(), "','",
                                    rv$term(), "',",
                                    rv$research_lookup_uid(),",'",
@@ -1490,11 +1490,11 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       observeEvent(input$future_deploy, {
         if(rv$add_new_future()){
           
-          new_future_query <-paste0("INSERT INTO fieldwork.tbl_future_deployment (ow_uid, inventory_sensors_uid,
+          new_future_query <-paste0("INSERT INTO fieldwork.tbl_future_deployment (ow_uid, sensor_uid,
                                     sensor_purpose, interval_min, long_term_lookup_uid, research_lookup_uid,
                                     notes, field_test_priority_lookup_uid, premonitoring_inspection, ready)
     			                          VALUES (fieldwork.fun_get_ow_uid(",rv$smp_id(),", '", input$well_name, "', ", rv$site_name_lookup_uid(), "), ",
-                                    rv$inventory_sensors_uid_null(),", ",
+                                    rv$sensor_uid_null(),", ",
                                     rv$purpose_null(), ", ",
                                     rv$interval_min(), ", ",
                                     rv$term_null(),", ",
@@ -1518,7 +1518,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
           
           update_future_query <- paste0("UPDATE fieldwork.tbl_future_deployment SET 
                            	      ow_uid = fieldwork.fun_get_ow_uid(",rv$smp_id(),", '", input$well_name, "', ", rv$site_name_lookup_uid(), "), 
-                                  inventory_sensors_uid = ",  rv$inventory_sensors_uid_null(), ", 
+                                  sensor_uid = ",  rv$sensor_uid_null(), ", 
                                   sensor_purpose = ", rv$purpose_null(), ",
                                   long_term_lookup_uid = ", rv$term_null(), ",
                                   research_lookup_uid = ", rv$research_lookup_uid(), ",

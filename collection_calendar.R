@@ -74,12 +74,12 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
                 FROM fieldwork.viw_active_deployments AS main
                 LEFT JOIN (
                   SELECT
-                    inventory_sensors_uid,
+                    sensor_uid,
                     recent_test_date,
                     cast(date_purchased as DATE) as date_purchased_asdate
                   FROM fieldwork.viw_sensor_recent_tests
                 ) AS sub
-                ON main.inventory_sensors_uid = sub.inventory_sensors_uid"
+                ON main.sensor_uid = sub.sensor_uid"
       rv$collect_table_db<- odbc::dbGetQuery(poolConn, collect_query)
       
       #query the future deployment table
