@@ -77,7 +77,7 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
                     sensor_uid,
                     recent_test_date,
                     cast(date_purchased as DATE) as date_purchased_asdate
-                  FROM fieldwork.viw_sensor_recent_tests
+                  FROM sensors.viw_sensor_recent_tests
                 ) AS sub
                 ON main.sensor_uid = sub.sensor_uid"
       rv$collect_table_db<- odbc::dbGetQuery(poolConn, collect_query)
