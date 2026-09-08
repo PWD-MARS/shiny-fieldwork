@@ -87,11 +87,11 @@ add_sensorServer <- function(id, parent_session, poolConn, sensor_model_lookup, 
       #2.1 Query sensor table ----
       #2.1.1 initial query -----
       #Sensor Serial Number List
-      sensor_table_query <-  "select * from fieldwork.viw_inventory_sensors_full"
+      sensor_table_query <-  "select * from sensors.viw_inventory_sensors_full"
       rv$sensor_table <- odbc::dbGetQuery(poolConn, sensor_table_query)
       
       #2.1.1.1 Query for viewing summary table ----
-      sensor_query <- "SELECT * FROM fieldwork.viw_inventory_sensors_status"
+      sensor_query <- "SELECT * FROM sensors.viw_inventory_sensors_status"
       rv$sensor_dt <- reactive(odbc::dbGetQuery(poolConn, sensor_query) %>%
                               mutate(Deployed = !is.na(active_ow_deployment)))
       

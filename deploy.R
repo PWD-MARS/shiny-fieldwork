@@ -978,7 +978,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       )
       
       #2.2.5.1 sensor query ------
-      sensor_query <- "SELECT * FROM fieldwork.viw_inventory_sensors_status"
+      sensor_query <- "SELECT * FROM sensors.viw_inventory_sensors_status"
       rv$sensor_dt <- reactive(odbc::dbGetQuery(poolConn, sensor_query))
       
       

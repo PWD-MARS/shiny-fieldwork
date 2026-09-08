@@ -128,7 +128,7 @@
       
       #Sensor Serial Number List
       hobo_list_query <-  "select inv.sensor_serial, inv.sensor_model, inv.date_purchased, 
-      ow.smp_id, ow.ow_suffix from fieldwork.viw_inventory_sensors_full inv
+      ow.smp_id, ow.ow_suffix from sensors.viw_inventory_sensors_full inv
                           left join fieldwork.tbl_deployment d on d.sensor_uid = inv.sensor_uid AND d.collection_dtime is NULL
                             left join fieldwork.tbl_ow ow on ow.ow_uid = d.ow_uid"
       hobo_list <- odbc::dbGetQuery(poolConn, hobo_list_query)
