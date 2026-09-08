@@ -79,7 +79,7 @@
       drv = RPostgres::Postgres(),
       host = "PWDMARSDBS1",
       port = 5434,
-      dbname = "mars_monica",
+      dbname = "mars_prod",
       user= Sys.getenv("shiny_uid"),
       password = Sys.getenv("shiny_pwd"),
       timezone = NULL)
