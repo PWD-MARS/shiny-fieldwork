@@ -104,7 +104,7 @@ collection_calendarServer <- function(id, parent_session, ow, deploy, poolConn) 
       rv$purpose_filter <- reactive(if(input$purpose_filter == 1.5){c(0, 1, 2, 3)} else {input$purpose_filter})
       
       #Pull sensor testing deadlines
-      rv$deadlines <- reactive(dbGetQuery(poolConn, "SELECT sensor_serial, test_deadline::date as testing_deadline FROM fieldwork.viw_sensor_deadlines"))
+      rv$deadlines <- reactive(dbGetQuery(poolConn, "SELECT sensor_serial, test_deadline::date as testing_deadline FROM sensors.viw_sensor_deadlines"))
 
 
       #arrange and filtered the collection calendar
