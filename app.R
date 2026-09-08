@@ -79,7 +79,7 @@
       drv = RPostgres::Postgres(),
       host = "PWDMARSDBS1",
       port = 5434,
-      dbname = "mars_prod",
+      dbname = "mars_monica",
       user= Sys.getenv("shiny_uid"),
       password = Sys.getenv("shiny_pwd"),
       timezone = NULL)
@@ -120,11 +120,11 @@
         dplyr::pull()
       
       #Sensor Model Number options
-      sensor_model_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
+      sensor_model_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
       
-      sensor_status_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
+      sensor_status_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
       
-      sensor_issue_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
+      sensor_issue_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
       
       #Sensor Serial Number List
       hobo_list_query <-  "select inv.sensor_serial, inv.sensor_model, inv.date_purchased, 
@@ -135,7 +135,7 @@
       sensor_serial <- hobo_list$sensor_serial
       
       #Deployment purpose lookup table
-      deployment_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_purpose_lookup")
+      deployment_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_purpose_lookup")
       
       #long term lookup types
       long_term_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_long_term_lookup")
@@ -242,14 +242,14 @@
       dplyr::pull()
     
     #Sensor Model Number options
-    sensor_model_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
+    sensor_model_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
     
-    sensor_status_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
+    sensor_status_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
     
-    sensor_issue_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
+    sensor_issue_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
     
     #Deployment purpose lookup table
-    deployment_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_purpose_lookup")
+    deployment_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_purpose_lookup")
     
     #srt_types & con phase
     srt_types <- dbGetQuery(poolConn, "select * from fieldwork.tbl_srt_type_lookup")
