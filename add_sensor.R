@@ -87,11 +87,11 @@ add_sensorServer <- function(id, parent_session, poolConn, sensor_model_lookup, 
       #2.1 Query sensor table ----
       #2.1.1 initial query -----
       #Sensor Serial Number List
-      sensor_table_query <-  "select * from fieldwork.viw_inventory_sensors_full"
+      sensor_table_query <-  "select * from sensors.viw_inventory_sensors_full"
       rv$sensor_table <- odbc::dbGetQuery(poolConn, sensor_table_query)
       
       #2.1.1.1 Query for viewing summary table ----
-      sensor_query <- "SELECT * FROM fieldwork.viw_inventory_sensors_status"
+      sensor_query <- "SELECT * FROM sensors.viw_inventory_sensors_status"
       rv$sensor_dt <- reactive(odbc::dbGetQuery(poolConn, sensor_query) %>%
                               mutate(Deployed = !is.na(active_ow_deployment)))
       
@@ -285,7 +285,7 @@ add_sensorServer <- function(id, parent_session, poolConn, sensor_model_lookup, 
         
         if(!(input$serial_no %in% rv$sensor_table$sensor_serial)){
           add_sensor_query <- paste0(
-            "INSERT INTO fieldwork.tbl_inventory_sensors (sensor_serial, sensor_model_lookup_uid, date_purchased, sensor_status_lookup_uid, 
+            "INSERT INTO sensors.tbl_sensor (sensor_serial, sensor_model_lookup_uid, date_purchased, sensor_status_lookup_uid, 
             sensor_issue_lookup_uid_one, sensor_issue_lookup_uid_two, request_data) 
     	      VALUES ('", input$serial_no, "', ",rv$sensor_model_lookup_uid(), ", ",  
             rv$date_purchased(), ", '", rv$status_lookup_uid(), "', ", 
@@ -304,7 +304,7 @@ add_sensorServer <- function(id, parent_session, poolConn, sensor_model_lookup, 
           })
         }else{ #edit sensor info
           
-          update_sensor_query <- paste0("UPDATE fieldwork.tbl_inventory_sensors SET 
+          update_sensor_query <- paste0("UPDATE sensors.tbl_sensor SET 
                                             sensor_model_lookup_uid = ", rv$sensor_model_lookup_uid(), ",
                                             date_purchased = ", rv$date_purchased(), ", 
                                             sensor_status_lookup_uid = '", rv$status_lookup_uid(), "', 

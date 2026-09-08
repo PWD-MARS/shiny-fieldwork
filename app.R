@@ -120,22 +120,22 @@
         dplyr::pull()
       
       #Sensor Model Number options
-      sensor_model_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
+      sensor_model_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
       
-      sensor_status_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
+      sensor_status_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
       
-      sensor_issue_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
+      sensor_issue_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
       
       #Sensor Serial Number List
       hobo_list_query <-  "select inv.sensor_serial, inv.sensor_model, inv.date_purchased, 
-      ow.smp_id, ow.ow_suffix from fieldwork.viw_inventory_sensors_full inv
-                          left join fieldwork.tbl_deployment d on d.inventory_sensors_uid = inv.inventory_sensors_uid AND d.collection_dtime is NULL
+      ow.smp_id, ow.ow_suffix from sensors.viw_inventory_sensors_full inv
+                          left join fieldwork.tbl_deployment d on d.sensor_uid = inv.sensor_uid AND d.collection_dtime is NULL
                             left join fieldwork.tbl_ow ow on ow.ow_uid = d.ow_uid"
       hobo_list <- odbc::dbGetQuery(poolConn, hobo_list_query)
       sensor_serial <- hobo_list$sensor_serial
       
       #Deployment purpose lookup table
-      deployment_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_purpose_lookup")
+      deployment_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_purpose_lookup")
       
       #long term lookup types
       long_term_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_long_term_lookup")
@@ -242,14 +242,14 @@
       dplyr::pull()
     
     #Sensor Model Number options
-    sensor_model_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
+    sensor_model_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_model_lookup order by sensor_model_lookup_uid")
     
-    sensor_status_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
+    sensor_status_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_status_lookup order by sensor_status_lookup_uid")
     
-    sensor_issue_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
+    sensor_issue_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_issue_lookup order by sensor_issue_lookup_uid")
     
     #Deployment purpose lookup table
-    deployment_lookup <- dbGetQuery(poolConn, "select * from fieldwork.tbl_sensor_purpose_lookup")
+    deployment_lookup <- dbGetQuery(poolConn, "select * from sensors.tbl_sensor_purpose_lookup")
     
     #srt_types & con phase
     srt_types <- dbGetQuery(poolConn, "select * from fieldwork.tbl_srt_type_lookup")
