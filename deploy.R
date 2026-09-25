@@ -320,7 +320,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
       
       #2.2 back to this tab ----------\
       
-      # Debugging Button
+      # # Debugging Button
       # observeEvent(input$BrowserButton,
       #              {browser()})
 
@@ -582,7 +582,7 @@ deployServer <- function(id, parent_session, ow, collect, sensor, poolConn, depl
           # Condition 10 - a sensor is NOT IN GOOD ORDER (the horror!)
           # 8/24/2026 - Amended to include Good Order - MARS or Good Order - AKRF
           input$sensor_id %in% rv$sensor_dt()$sensor_serial &&
-          (rv$sensor_dt()[which(rv$sensor_dt()$sensor_serial == input$sensor_id),]$sensor_status != "Good Order- MARS Custody" |
+          (rv$sensor_dt()[which(rv$sensor_dt()$sensor_serial == input$sensor_id),]$sensor_status != "Good Order- MARS Custody" &
             rv$sensor_dt()[which(rv$sensor_dt()$sensor_serial == input$sensor_id),]$sensor_status != "Good Order- AKRF Custody")
           )
           {
